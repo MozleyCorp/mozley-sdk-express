@@ -1,5 +1,7 @@
 "use strict"
 
+const { Joi } = require("celebrate")
+
 const mzly = require("../src")
 const app = mzly.app({
 	environment: "development",
@@ -15,9 +17,23 @@ const app = mzly.app({
 	],
 
 	loadRoutes: (app) => {
-		mzly.endpoint(app, "get", "/", {}, (req, res) => {
-			res.send(`Hi, ${req.userName}`)
-		})
+		mzly.endpoint(
+			app,
+			"get",
+			"/",
+			{
+				validator: {
+					query: {
+						favouriteNumber: Joi.number().required(),
+					},
+				},
+			},
+			(req, res, next) => {
+				res.send(
+					`Hi, ${req.userName}. Your favourite number is reported as ${req.query.favouriteNumber}.`
+				)
+			}
+		)
 	},
 })
 

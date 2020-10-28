@@ -4,7 +4,7 @@ const assert = require("assert")
 const async = require("async")
 
 const cors = require("cors")
-const celebrate = require("celebrate")
+const { celebrate } = require("celebrate")
 
 // Used for getting the express app (a.app())
 const a = require("./makeApp")
@@ -36,10 +36,7 @@ const middlewareArray = (middlewareList) => {
 			function (middleware, callback) {
 				middleware.bind(null, req, res, callback)()
 			},
-			function (err) {
-				if (err) return res.status(500).json({ error: err })
-				next()
-			}
+			next
 		)
 	}
 }
@@ -92,6 +89,7 @@ module.exports = (router, method, path, settings, handler) => {
 	const corsEnabled = settings.cors == null ? false : true
 
 	const middlewares = []
+
 	if (corsEnabled) {
 		// Use the default CORS settings
 		middlewares.push(

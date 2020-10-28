@@ -5,6 +5,8 @@ const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const morgan = require("morgan")
 
+const { isCelebrateError } = require("celebrate")
+
 const sdk = require("../sdk")
 
 let runningApp = null
@@ -65,17 +67,36 @@ module.exports = (settings) => {
 	})
 
 	// Error handler (must be last app.use)
-	app.use((err, req, res) => {
-		res.status(err.status || 500)
-		res.json({
-			errors: [
-				{
-					code: err.code || undefined,
-					message: err.message,
-					userFacingMessage: err.userFacingMessage || err.message,
-				},
-			],
-		})
+	app.use((err, req, res, next) => {
+		if (isCelebrateError(err)) {
+			let obj = {}
+			err.details.forEach((value, key) => {
+				obj[key] = value
+			})
+
+			res.status(err.status || 400)
+			res.json({
+				errors: [
+					{
+						code: -1,
+						message: "Bad Request",
+						details: obj,
+						userFacingMessage: "Something went wrong",
+					},
+				],
+			})
+		} else {
+			res.status(err.status || 500)
+			res.json({
+				errors: [
+					{
+						code: err.code || 0,
+						message: err.message || "Internal Server Error",
+						userFacingMessage: err.userFacingMessage || "Something went wrong",
+					},
+				],
+			})
+		}
 	})
 
 	return app
