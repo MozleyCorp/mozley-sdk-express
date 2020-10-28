@@ -2,12 +2,23 @@
 
 const express = require("express")
 const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
 const morgan = require("morgan")
 
 const sdk = require("../sdk")
 
 let runningApp = null
 
+/**
+ * @param Settings {
+ * 	environment: "development|production"
+ * 	clientId: "client id for mozley network",
+ * 	clientSecret: "client secret for mozley network",
+ * 	frontendOrigin: "the domain your frontend is on (for CORS)",
+ * 	authRedirect: "where users will be sent to once authenticated (must be approved redirect_uri)",
+ * 	cookieSecret: "secret your cookies will be signed with"
+ * }
+ */
 module.exports = (settings) => {
 	const app = express()
 	runningApp = app
@@ -32,9 +43,10 @@ module.exports = (settings) => {
 	app.head("/status", healthCheck)
 
 	// TODO: Swagger
+	app.use(bodyParser.json())
+	app.use(cookieParser(settings.cookieSecret || "keyboard cat", {}))
 	/// app.use("/docs", ...)
 	sdk(app)
-	app.use(bodyParser.json())
 	app.use(morgan("dev"))
 
 	for (let middleware of settings.customMiddleware || []) {
