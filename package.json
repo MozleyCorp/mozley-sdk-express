@@ -1,0 +1,39 @@
+{
+	"name": "@mozley/sdk-express",
+	"version": "0.0.0",
+	"description": "",
+	"keywords": [],
+	"homepage": "https://github.com/mozleycorp/mozley-sdk-express",
+	"license": "UNLICENSED",
+	"author": "Elliott Mozley <elliottlm@mozley.biz> (mozley.biz)",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/mozleycorp/mozley-sdk-express"
+	},
+	"bugs": {
+		"url": "https://github.com/mozleycorp/mozley-sdk-express/issues",
+		"email": "elliottlm@mozley.biz"
+	},
+	"config": {},
+	"main": "src/index.js",
+	"scripts": {
+		"start": "node .",
+		"ex": "node ./example",
+		"ex-dev": "nodemon ./example"
+	},
+	"engines": {
+		"node": "12.18",
+		"npm": "6.14"
+	},
+	"dependencies": {
+		"body-parser": "^1.19.0",
+		"celebrate": "^13.0.3",
+		"cors": "^2.8.5",
+		"express": "^4.17.1",
+		"morgan": "^1.10.0",
+		"winston": "^3.3.3"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.6"
+	}
+}
