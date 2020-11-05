@@ -1,6 +1,6 @@
 {
 	"name": "@mozley/sdk-express",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "",
 	"keywords": [],
 	"homepage": "https://github.com/mozleycorp/mozley-sdk-express",
@@ -26,15 +26,15 @@
 		"npm": "6.14"
 	},
 	"dependencies": {
-		"body-parser": "^1.19.0",
-		"celebrate": "^13.0.3",
-		"cookie-parser": "^1.4.5",
-		"cors": "^2.8.5",
-		"express": "^4.17.1",
-		"morgan": "^1.10.0",
-		"winston": "^3.3.3"
+		"body-parser": "1.19.0",
+		"celebrate": "13.0.3",
+		"cookie-parser": "1.4.5",
+		"cors": "2.8.5",
+		"express": "4.17.1",
+		"morgan": "1.10.0",
+		"winston": "3.3.3"
 	},
 	"devDependencies": {
-		"nodemon": "^2.0.6"
+		"nodemon": "2.0.6"
 	}
 }
