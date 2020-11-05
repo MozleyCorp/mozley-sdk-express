@@ -1,10 +1,5 @@
 "use strict"
 
-/**
- * @TODO move a lot of this to the SDK boilerplate
- * (aka have a 'site' and 'api' flag to toggle things)
- */
-
 const express = require("express")
 const path = require("path")
 const mzly = require("@mozley/sdk-express")
@@ -22,6 +17,7 @@ module.exports = async () => {
 		environment: process.env.NODE_ENV,
 		clientId: config.client.c_id,
 		clientSecret: config.client.c_secret,
+		style: "site",
 		// ⚠ CHANGE THIS TO YOUR APP DOMAIN
 		frontendOrigin: "example.com",
 		// Change this to what should be your apps' redirect_url. Make sure you add

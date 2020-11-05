@@ -11,6 +11,8 @@ const sdk = require("../sdk")
 
 let runningApp = null
 
+// TODO: Add easy csrf for sites
+
 /**
  * @param Settings {
  * 	environment: "development|production"
@@ -19,6 +21,7 @@ let runningApp = null
  * 	frontendOrigin: "the domain your frontend is on (for CORS)",
  * 	authRedirect: "where users will be sent to once authenticated (must be approved redirect_uri)",
  * 	cookieSecret: "secret your cookies will be signed with"
+ * 	style: "api" | "site"
  * }
  */
 module.exports = (settings) => {
@@ -38,11 +41,31 @@ module.exports = (settings) => {
 		frontendOrigin: settings.frontendOrigin,
 		authRedirect: settings.onAuthenticatedRedirect,
 	}
+	app.isApi = settings.style == "api"
+	app.isSite = settings.style == "site"
+
+	if (!app.isApi && !app.isSite) {
+		throw new Error("Your app needs to either be an API or site")
+	}
 
 	// Health check endpoints
-	const healthCheck = (_, res) => res.status(200).send("OK").end()
-	app.get("/status", healthCheck)
-	app.head("/status", healthCheck)
+	if (app.isApi) {
+		const healthCheck = (_, res) => res.status(200).send("OK").end()
+		app.get("/status", healthCheck)
+		app.head("/status", healthCheck)
+	}
+
+	app.get("/%manifest", (req, res) =>
+		res.json({
+			appName: "",
+			appOwner: "",
+			appStyle: app.isApi ? "api" : "site",
+
+			clientProvider: "",
+			clientId: app.mzlysdk_options.clientId,
+			clientRedirect: app.mzlysdk_options.authRedirect,
+		})
+	)
 
 	// TODO: Swagger
 	app.use(bodyParser.json())
@@ -60,44 +83,46 @@ module.exports = (settings) => {
 	}
 
 	// Pass 404 to error handler
-	app.use((req, res, next) => {
-		const err = new Error("Not Found")
-		err.statusCode = 404
-		next(err)
-	})
+	if (app.isApi) {
+		app.use((req, res, next) => {
+			const err = new Error("Not Found")
+			err.statusCode = 404
+			next(err)
+		})
 
-	// Error handler (must be last app.use)
-	app.use((err, req, res, next) => {
-		if (isCelebrateError(err)) {
-			let obj = {}
-			err.details.forEach((value, key) => {
-				obj[key] = value
-			})
+		// Error handler (must be last app.use)
+		app.use((err, req, res, next) => {
+			if (isCelebrateError(err)) {
+				let obj = {}
+				err.details.forEach((value, key) => {
+					obj[key] = value
+				})
 
-			res.status(err.status || 400)
-			res.json({
-				errors: [
-					{
-						code: -1,
-						message: "Bad Request",
-						details: obj,
-						userFacingMessage: "Something went wrong",
-					},
-				],
-			})
-		} else {
-			res.status(err.status || 500)
-			res.json({
-				errors: [
-					{
-						code: err.code || 0,
-						message: err.message || "Internal Server Error",
-						userFacingMessage: err.userFacingMessage || "Something went wrong",
-					},
-				],
-			})
-		}
-	})
+				res.status(err.status || 400)
+				res.json({
+					errors: [
+						{
+							code: -1,
+							message: "Bad Request",
+							details: obj,
+							userFacingMessage: "Something went wrong",
+						},
+					],
+				})
+			} else {
+				res.status(err.status || 500)
+				res.json({
+					errors: [
+						{
+							code: err.code || 0,
+							message: err.message || "Internal Server Error",
+							userFacingMessage: err.userFacingMessage || "Something went wrong",
+						},
+					],
+				})
+			}
+		})
+	}
 
 	return app
 }
