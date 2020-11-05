@@ -1,0 +1,16 @@
+{% set title = "User List" %}
+{% extends "layouts/app.njk" %}
+
+{% block body %}
+	<div class="container">
+		<h1>Users List</h1>
+
+		<ul>
+			{% for user in users %}
+				<li>{{ user }}</li>
+			{% else %}
+				<p>There are no users!</p>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
