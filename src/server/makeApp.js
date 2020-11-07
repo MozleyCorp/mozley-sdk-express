@@ -4,6 +4,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const morgan = require("morgan")
+const csurf = require("csurf")
 
 const { isCelebrateError } = require("celebrate")
 
@@ -47,6 +48,15 @@ module.exports = (settings) => {
 	if (!app.isApi && !app.isSite) {
 		throw new Error("Your app needs to either be an API or site")
 	}
+
+	app.xsrf = csurf({
+		cookie: true,
+		key: "XSRF-TOKEN",
+		signed: true,
+		secure: true,
+		httpOnly: true,
+		sameSite: "lax",
+	})
 
 	// Health check endpoints
 	if (app.isApi) {
@@ -106,6 +116,18 @@ module.exports = (settings) => {
 							message: "Bad Request",
 							details: obj,
 							userFacingMessage: "Something went wrong",
+						},
+					],
+				})
+			} else if (err.code == "EBADCSRFTOKEN") {
+				res.status(403)
+				res.json({
+					errors: [
+						{
+							code: 0,
+							message: "CSRF verification failed",
+							userFacingMessage:
+								"Something went wrong. Try refreshing the page or trying again later.",
 						},
 					],
 				})

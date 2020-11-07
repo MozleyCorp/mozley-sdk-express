@@ -102,7 +102,7 @@ module.exports = (router, method, path, settings, handler) => {
 	}
 
 	if (xsrfVerificationEnabled) {
-		// TODO: XSRF Verification
+		middlewares.push(a.app().xsrf)
 	}
 
 	if (isObject(settings.validator)) {
