@@ -28,7 +28,6 @@ let runningApp = null
 module.exports = (settings) => {
 	const app = express()
 	runningApp = app
-	module.exports.app = app
 
 	app.set("env", settings.environment)
 	// Trust the proxy if we're in production, since we use a proxy in production
@@ -149,4 +148,4 @@ module.exports = (settings) => {
 	return app
 }
 
-module.exports.app = () => runningApp
+module.exports.getApp = () => runningApp

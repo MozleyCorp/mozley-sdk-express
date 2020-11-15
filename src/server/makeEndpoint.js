@@ -6,7 +6,7 @@ const async = require("async")
 const cors = require("cors")
 const { celebrate } = require("celebrate")
 
-// Used for getting the express app (a.app())
+// Used for getting the express app (a.getApp())
 const a = require("./makeApp")
 
 const httpVerbs = [
@@ -84,8 +84,8 @@ module.exports = (router, method, path, settings, handler) => {
 		typeof settings.xsrfToken == "boolean"
 			? settings.xsrfToken
 			: method == "get" || method == "options"
-			? false
-			: true
+				? false
+				: true
 	const corsEnabled = settings.cors == null ? false : true
 
 	const middlewares = []
@@ -95,14 +95,14 @@ module.exports = (router, method, path, settings, handler) => {
 		middlewares.push(
 			cors(
 				settings.cors || {
-					origin: [a.app().mzlysdk_options.frontendOrigin],
+					origin: [a.getApp().mzlysdk_options.frontendOrigin],
 				}
 			)
 		)
 	}
 
 	if (xsrfVerificationEnabled) {
-		middlewares.push(a.app().xsrf)
+		middlewares.push(a.getApp().xsrf)
 	}
 
 	if (isObject(settings.validator)) {
