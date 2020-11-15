@@ -2,12 +2,10 @@
 
 const assert = require("assert")
 const async = require("async")
+const { Container } = require("typedi")
 
 const cors = require("cors")
 const { celebrate } = require("celebrate")
-
-// Used for getting the express app (a.getApp())
-const a = require("./makeApp")
 
 const httpVerbs = [
 	"all",
@@ -80,6 +78,8 @@ module.exports = (router, method, path, settings, handler) => {
 	)
 	if (!settings) settings = {}
 
+	const app = Container.get("mzlyxpress")
+
 	const xsrfVerificationEnabled =
 		typeof settings.xsrfToken == "boolean"
 			? settings.xsrfToken
@@ -95,14 +95,14 @@ module.exports = (router, method, path, settings, handler) => {
 		middlewares.push(
 			cors(
 				settings.cors || {
-					origin: [a.getApp().mzlysdk_options.frontendOrigin],
+					origin: [app.mzlysdk_options.frontendOrigin],
 				}
 			)
 		)
 	}
 
 	if (xsrfVerificationEnabled) {
-		middlewares.push(a.getApp().xsrf)
+		middlewares.push(app.xsrf)
 	}
 
 	if (isObject(settings.validator)) {
