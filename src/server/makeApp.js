@@ -96,7 +96,7 @@ module.exports = (settings) => {
 	if (app.isApi) {
 		app.use((req, res, next) => {
 			const err = new Error("Not Found")
-			err.statusCode = 404
+			err.status = 404
 			next(err)
 		})
 
