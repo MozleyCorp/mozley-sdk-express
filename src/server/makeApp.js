@@ -10,8 +10,6 @@ const { isCelebrateError } = require("celebrate")
 
 const sdk = require("../sdk")
 
-let runningApp = null
-
 /**
  * @param Settings {
  * 	environment: "development|production"
@@ -96,6 +94,12 @@ module.exports = (settings) => {
 					},
 				],
 			})
+
+			if (process.env.NODE_ENV == "development") {
+				throw err
+			} else {
+				Logger.error(`🔥 Error: ${err.message}`)
+			}
 		}
 	})
 

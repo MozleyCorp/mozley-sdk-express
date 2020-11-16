@@ -32,6 +32,7 @@ const middlewareArray = (middlewareList) => {
 		async.eachSeries(
 			middlewareList,
 			function (middleware, callback) {
+				if (!middleware) return callback()
 				middleware.bind(null, req, res, callback)()
 			},
 			next
