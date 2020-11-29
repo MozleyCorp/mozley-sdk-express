@@ -19,6 +19,7 @@ const sdk = require('../sdk')
  *  frontendOrigin: "the domain your frontend is on (for CORS)",
  *  authRedirect: "where users will be sent to once authenticated (must be approved redirect_uri)",
  *  cookieSecret: "secret your cookies will be signed with"
+ *  corsDefault: default object passed to cors package
  * }
  */
 module.exports = (settings) => {
@@ -38,7 +39,7 @@ module.exports = (settings) => {
     authRedirect: settings.onAuthenticatedRedirect
   }
 
-  app.corsDefault = {
+  app.corsDefault = settings.corsDefault || {
     origin: [app.mzlysdk_options.frontendOrigin]
   }
 
