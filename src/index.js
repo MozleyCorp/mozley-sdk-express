@@ -1,8 +1,8 @@
-"use strict"
+'use strict'
 
 // IMPORTS
-const logger = require("./tools/logger")
-const server = require("./server")
+const logger = require('./tools/logger')
+const server = require('./server')
 
 // EXPORT
 module.exports = server

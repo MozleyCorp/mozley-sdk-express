@@ -1,23 +1,23 @@
-"use strict"
+'use strict'
 
-const assert = require("assert")
-const async = require("async")
-const { Container } = require("typedi")
+const assert = require('assert')
+const async = require('async')
+const { Container } = require('typedi')
 
-const cors = require("cors")
-const { celebrate } = require("celebrate")
+const cors = require('cors')
+const { celebrate } = require('celebrate')
 
 const httpVerbs = [
-	"all",
-	"get",
-	"head",
-	"post",
-	"put",
-	"delete",
-	"trace",
-	"options",
-	"connect",
-	"patch",
+  'all',
+  'get',
+  'head',
+  'post',
+  'put',
+  'delete',
+  'trace',
+  'options',
+  'connect',
+  'patch'
 ]
 
 const typeError = (msg) => new TypeError(msg)
@@ -28,16 +28,16 @@ const isObject = (a) => !!a && a.constructor == Object
 
 // Modified from: https://stackoverflow.com/a/37681251/13613988
 const middlewareArray = (middlewareList) => {
-	return (req, res, next) => {
-		async.eachSeries(
-			middlewareList,
-			function (middleware, callback) {
-				if (!middleware) return callback()
-				middleware.bind(null, req, res, callback)()
-			},
-			next
-		)
-	}
+  return (req, res, next) => {
+    async.eachSeries(
+      middlewareList,
+      function (middleware, callback) {
+        if (!middleware) return callback()
+        middleware.bind(null, req, res, callback)()
+      },
+      next
+    )
+  }
 }
 
 /**
@@ -63,58 +63,56 @@ const middlewareArray = (middlewareList) => {
  * (HttpVerb): ALL, GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, or PATCH
  */
 module.exports = (router, method, path, settings, handler) => {
-	assert(router, typeError("Router must be specified"))
-	assert(
-		typeof method == "string" && httpVerbs.indexOf(method.toLowerCase()) >= 0,
-		typeError("Method must be specified and must be a HTTP verb")
-	)
-	assert(typeof path == "string", typeError("Path must be specified"))
-	assert(
-		settings == undefined || isObject(settings),
-		typeError("Settings must be undefined or an object")
-	)
-	assert(
-		typeof handler == "function",
-		typeError("Handler must be specified and must be a function")
-	)
-	if (!settings) settings = {}
+  assert(router, typeError('Router must be specified'))
+  assert(
+    typeof method === 'string' && httpVerbs.indexOf(method.toLowerCase()) >= 0,
+    typeError('Method must be specified and must be a HTTP verb')
+  )
+  assert(typeof path === 'string', typeError('Path must be specified'))
+  assert(
+    settings == undefined || isObject(settings),
+    typeError('Settings must be undefined or an object')
+  )
+  assert(
+    typeof handler === 'function',
+    typeError('Handler must be specified and must be a function')
+  )
+  if (!settings) settings = {}
 
-	const app = Container.get("mzlyxpress")
+  const app = Container.get('mzlyxpress')
 
-	const xsrfVerificationEnabled =
-		typeof settings.xsrfToken == "boolean"
-			? settings.xsrfToken
-			: method == "get" || method == "options"
-				? false
-				: true
-	const corsEnabled = settings.cors == null ? false : true
+  const xsrfVerificationEnabled =
+		typeof settings.xsrfToken === 'boolean'
+		  ? settings.xsrfToken
+		  : !(method == 'get' || method == 'options')
+  const corsEnabled = settings.cors != null
 
-	const middlewares = []
+  const middlewares = []
 
-	if (corsEnabled) {
-		// Use the default CORS settings
-		middlewares.push(
-			cors(
-				settings.cors || {
-					origin: [app.mzlysdk_options.frontendOrigin],
-				}
-			)
-		)
-	}
+  if (corsEnabled) {
+    // Use the default CORS settings
+    middlewares.push(
+      cors(
+        settings.cors || {
+          origin: [app.mzlysdk_options.frontendOrigin]
+        }
+      )
+    )
+  }
 
-	if (xsrfVerificationEnabled) {
-		middlewares.push(app.xsrf)
-	}
+  if (xsrfVerificationEnabled) {
+    middlewares.push(app.xsrf)
+  }
 
-	if (isObject(settings.validator)) {
-		middlewares.push(celebrate(settings.validator))
-	}
+  if (isObject(settings.validator)) {
+    middlewares.push(celebrate(settings.validator))
+  }
 
-	if (isArray(settings.middlewares)) {
-		for (let middleware of settings.middlewares) {
-			middlewares.push(middleware)
-		}
-	}
+  if (isArray(settings.middlewares)) {
+    for (const middleware of settings.middlewares) {
+      middlewares.push(middleware)
+    }
+  }
 
-	router[method](path, middlewareArray(middlewares), handler)
+  router[method](path, middlewareArray(middlewares), handler)
 }

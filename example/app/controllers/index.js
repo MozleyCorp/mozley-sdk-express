@@ -1,4 +1,4 @@
 module.exports = {
-	root: require("./root"),
-	users: require("./users"),
+  root: require('./root'),
+  users: require('./users')
 }

@@ -17,9 +17,10 @@
 	"config": {},
 	"main": "src/index.js",
 	"scripts": {
-		"start": "node .",
+    "test": "standard",
+    "prepublish": "npm run test",
 		"ex": "node ./example",
-		"ex-dev": "nodemon ./example"
+    "ex-dev": "nodemon ./example"
 	},
 	"engines": {
 		"node": "12.18",
@@ -37,6 +38,7 @@
 		"winston": "3.3.3"
 	},
 	"devDependencies": {
-		"nodemon": "2.0.6"
+		"nodemon": "2.0.6",
+		"standard": "^16.0.3"
 	}
 }
