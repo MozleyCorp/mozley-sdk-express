@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 
+const Logger = require('../tools/logger')
 const { Container } = require('typedi')
 const { isCelebrateError } = require('celebrate')
 
@@ -12,12 +13,12 @@ const sdk = require('../sdk')
 
 /**
  * @param Settings {
- * 	environment: "development|production"
- * 	clientId: "client id for mozley network",
- * 	clientSecret: "client secret for mozley network",
- * 	frontendOrigin: "the domain your frontend is on (for CORS)",
- * 	authRedirect: "where users will be sent to once authenticated (must be approved redirect_uri)",
- * 	cookieSecret: "secret your cookies will be signed with"
+ *  environment: "development|production"
+ *  clientId: "client id for mozley network",
+ *  clientSecret: "client secret for mozley network",
+ *  frontendOrigin: "the domain your frontend is on (for CORS)",
+ *  authRedirect: "where users will be sent to once authenticated (must be approved redirect_uri)",
+ *  cookieSecret: "secret your cookies will be signed with"
  * }
  */
 module.exports = (settings) => {
@@ -26,7 +27,7 @@ module.exports = (settings) => {
 
   app.set('env', settings.environment)
   // Trust the proxy if we're in production, since we use a proxy in production
-  app.set('trust proxy', settings.environment == 'production')
+  app.set('trust proxy', settings.environment === 'production')
   // Prevents possible security issues
   app.set('x-powered-by', false)
 
@@ -35,6 +36,10 @@ module.exports = (settings) => {
     clientSecret: settings.clientSecret,
     frontendOrigin: settings.frontendOrigin,
     authRedirect: settings.onAuthenticatedRedirect
+  }
+
+  app.corsDefault = {
+    origin: [app.mzlysdk_options.frontendOrigin]
   }
 
   // Health check endpoints
@@ -95,7 +100,7 @@ module.exports = (settings) => {
         ]
       })
 
-      if (process.env.NODE_ENV == 'development') {
+      if (process.env.NODE_ENV === 'development') {
         throw err
       } else {
         Logger.error(`🔥 Error: ${err.message}`)

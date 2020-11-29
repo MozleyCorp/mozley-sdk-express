@@ -24,7 +24,7 @@ const typeError = (msg) => new TypeError(msg)
 
 // From: https://stackoverflow.com/a/16608045/13613988
 const isArray = (a) => !!a && a.constructor === Array
-const isObject = (a) => !!a && a.constructor == Object
+const isObject = (a) => !!a && a.constructor === Object
 
 // Modified from: https://stackoverflow.com/a/37681251/13613988
 const middlewareArray = (middlewareList) => {
@@ -49,16 +49,17 @@ const middlewareArray = (middlewareList) => {
  * @param {Function(req, res, next)} handler The handler for this endpoint
  *
  * Settings: {
- * 	validator: Optional. See Validation section below.
- * 	cors: Optional Object|Null (uses default CORS settings if undefined, uses no CORS if null) See https://www.npmjs.com/package/cors#configuration-options
- * 	xsrfToken: Optional Boolean (default true; false if GET or OPTIONS). Determines if an X-XSRF-TOKEN header should be validated before request can continue.
- * 	requireAuthentication: Optional Boolean (default false). Request will be blocked if user is not authenticated.
- * 	middlewares: Optional Array
+ *  validator: Optional. See Validation section below.
+ *  corsPreflight: Optional true. Tells CORS to handle an options request for this endpoint.
+ *  cors: Optional Object|Null (uses default CORS settings if undefined, uses no CORS if null) See https://www.npmjs.com/package/cors#configuration-options
+ *  xsrfToken: Optional Boolean (default true; false if GET or OPTIONS). Determines if an X-XSRF-TOKEN header should be validated before request can continue.
+ *  requireAuthentication: Optional Boolean (default false). Request will be blocked if user is not authenticated.
+ *  middlewares: Optional Array
  * }
  *
  * Injected into (req, res):
- * 	> req.isAuthenticated() - Returns if the user is authenticated (lazy load)
- * 	> req.getUser() - Returns the authenticated user or null (lazy load)
+ *  > req.isAuthenticated() - Returns if the user is authenticated (lazy load)
+ *  > req.getUser() - Returns the authenticated user or null (lazy load)
  *
  * (HttpVerb): ALL, GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, or PATCH
  */
@@ -70,7 +71,7 @@ module.exports = (router, method, path, settings, handler) => {
   )
   assert(typeof path === 'string', typeError('Path must be specified'))
   assert(
-    settings == undefined || isObject(settings),
+    settings === undefined || isObject(settings),
     typeError('Settings must be undefined or an object')
   )
   assert(
@@ -81,11 +82,17 @@ module.exports = (router, method, path, settings, handler) => {
 
   const app = Container.get('mzlyxpress')
 
+  if (settings.corsPreflight === true) {
+    router.options(path, cors(
+      settings.cors || app.corsDefault
+    ))
+  }
+
   const xsrfVerificationEnabled =
-		typeof settings.xsrfToken === 'boolean'
-		  ? settings.xsrfToken
-		  : !(method == 'get' || method == 'options')
-  const corsEnabled = settings.cors != null
+    typeof settings.xsrfToken === 'boolean'
+      ? settings.xsrfToken
+      : !(method === 'get' || method === 'options')
+  const corsEnabled = settings.cors !== null
 
   const middlewares = []
 
@@ -93,9 +100,7 @@ module.exports = (router, method, path, settings, handler) => {
     // Use the default CORS settings
     middlewares.push(
       cors(
-        settings.cors || {
-          origin: [app.mzlysdk_options.frontendOrigin]
-        }
+        settings.cors || app.corsDefault
       )
     )
   }
