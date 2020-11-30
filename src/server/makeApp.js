@@ -101,11 +101,7 @@ module.exports = (settings) => {
         ]
       })
 
-      if (process.env.NODE_ENV === 'development') {
-        throw err
-      } else {
-        Logger.error(`🔥 Error: ${err.message}`)
-      }
+      Logger.error(`🔥 Error: ${err.message}`)
     }
   })
 

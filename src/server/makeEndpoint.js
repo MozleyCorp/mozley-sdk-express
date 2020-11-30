@@ -50,7 +50,7 @@ const middlewareArray = (middlewareList) => {
  *
  * Settings: {
  *  validator: Optional. See Validation section below.
- *  corsPreflight: Optional true. Tells CORS to handle an options request for this endpoint.
+ *  corsPreflight: Default true. Tells CORS to handle an options request for this endpoint.
  *  cors: Optional Object|Null (uses default CORS settings if undefined, uses no CORS if null) See https://www.npmjs.com/package/cors#configuration-options
  *  xsrfToken: Optional Boolean (default true; false if GET or OPTIONS). Determines if an X-XSRF-TOKEN header should be validated before request can continue.
  *  requireAuthentication: Optional Boolean (default false). Request will be blocked if user is not authenticated.
@@ -82,7 +82,7 @@ module.exports = (router, method, path, settings, handler) => {
 
   const app = Container.get('mzlyxpress')
 
-  if (settings.corsPreflight === true) {
+  if (settings.corsPreflight !== false) {
     router.options(path, cors(
       settings.cors || app.corsDefault
     ))
